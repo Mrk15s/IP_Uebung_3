@@ -46,7 +46,7 @@ public class Factory {
 		return algorithm;
 	}
 	
-	public static Outline newOutlineAlgorithm()
+	public static IOriginalPixels newOutlineAlgorithm()
 	{
 		return new Outline();
 	}

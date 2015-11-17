@@ -8,6 +8,7 @@ package de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.ff.AbstractFloodFilling;
 
 /**
@@ -73,7 +74,7 @@ public class ImageUtil {
 	 * @param pixels
 	 * @return
 	 */
-	public static int[] getFlatArray(int width, int height, int[][] pixels) {
+	public static int[] get1DFrom2DArray(int width, int height, int[][] pixels) {
 		int[] flat = new int[width * height];
 
 		for (int i = 0; i < width; i++) {
@@ -85,6 +86,28 @@ public class ImageUtil {
 
 		return flat;
 	}
+	
+	/**
+	 * 
+	 * @param width
+	 * @param height
+	 * @param pixels
+	 * @return
+	 */
+	public static int[][] get2DFrom1DArray(int width, int height, int[] pixels)
+	{
+		int[][] pixel2D = new int[width][height];
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				int pos = ImageUtil.calc1DPosition(width, x, y);
+
+				pixel2D[x][y] = pixels[pos];
+			}
+		}
+		
+		return pixel2D;
+	}
 
 	/**
 	 * 
@@ -93,5 +116,32 @@ public class ImageUtil {
 	 */
 	public static boolean isForegoundPixel(int i) {
 		return i == FOREGROUND_VALUE;
+	}
+	
+	public static Vertex getRightVertex(int x, int y)
+	{
+		Vertex newNode = new Vertex();
+		newNode.setX(x + 1);
+		newNode.setY(y);
+		
+		return newNode;
+	}
+	
+	public static Vertex getBewloVertex(int x, int y)
+	{
+		Vertex newNode = new Vertex();
+		newNode.setX(x);
+		newNode.setY(y + 1);
+		
+		return newNode;
+	}
+	
+	public static Vertex getBelowLeftVertex(int x, int y)
+	{
+		Vertex newNode = new Vertex();
+		newNode.setX(x - 1);
+		newNode.setY(y + 1);
+		
+		return newNode;
 	}
 }

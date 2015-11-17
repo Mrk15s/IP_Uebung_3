@@ -294,7 +294,7 @@ public class FloodFillingGui extends JPanel implements Observer {
 			int[][] labeled2dPixels = this.floodFillingAlgorithm.execute();
 			long time = System.currentTimeMillis() - startTime;
 			
-			int[] labeledPixels = ImageUtil.getFlatArray(this.srcView.getImgWidth(), this.srcView.getImgHeight(),
+			int[] labeledPixels = ImageUtil.get1DFrom2DArray(this.srcView.getImgWidth(), this.srcView.getImgHeight(),
 					labeled2dPixels);
 
 			this.colorRegionsByLabel(dstPixels, labeledPixels);
@@ -346,14 +346,9 @@ public class FloodFillingGui extends JPanel implements Observer {
 			
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			    public void run() {
+			    	
 					// TODO check why GUI isn't updated
-			    	dstView.invalidate();
-			        dstView.repaint();  // repaint(), etc. according to changed states
-			        
-			        imagesPanel.invalidate();
-			        imagesPanel.repaint();
-			        
-			        frame.repaint();
+			    	dstView.revalidate();
 			    }
 			});
 

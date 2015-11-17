@@ -14,7 +14,7 @@ import java.util.List;
  * @author Sascha Feldmann <sascha.feldmann@gmx.de>
  * @since 10.11.2015
  */
-public class Sequence {
+public class OutlineSequence {
 	public static final int TYPE_INNER = 0;
 	public static final int TYPE_OUTER = 1;
 	

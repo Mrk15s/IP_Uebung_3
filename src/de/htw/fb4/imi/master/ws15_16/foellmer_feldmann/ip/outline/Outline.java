@@ -5,6 +5,7 @@
  */
 package de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.outline;
 
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.IOriginalPixels;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
 
 /**
@@ -12,7 +13,7 @@ import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
  *
  * @since 20.10.2015
  */
-public class Outline {	
+public class Outline implements IOriginalPixels {	
 	private int[][] originalBinaryPixels;
 	private int[][] erodedPixels;
 	private int[][] outlinePixels;
@@ -44,34 +45,20 @@ public class Outline {
 		return originalBinaryPixels;
 	}
 
-	/**
-	 * Set the original pixels by an 1-dimensional pixel array. 
-	 * 
-	 * Internally, the pixels are stored as 2-dimensional array. For conversion, hand in widht and height.
-	 * @param width
-	 * @param height
-	 * @param originalPixels
+	/* (non-Javadoc)
+	 * @see de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.outline.IOriginalPixels#setOriginalBinaryPixels(int, int, int[])
 	 */
+	@Override
 	public void setOriginalBinaryPixels(int width, int height, int[] originalPixels) {
 		this.width = width;
 		this.height = height;
-		this.originalBinaryPixels = new int[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				int pos = ImageUtil.calc1DPosition(width, x, y);
-
-				this.originalBinaryPixels[x][y] = originalPixels[pos];
-			}
-		}
+		this.originalBinaryPixels = ImageUtil.get2DFrom1DArray(width, height, originalPixels);
 	}	
 	
-	/**
-	 * Set the original pixels as 2d-array as it's internally expected.
-	 * 
-	 * @see setOriginalBinaryPixels(int width, int height, int[] originalPixels) if you want to hand in a 1d array
-	 * @param originalPixels
+	/* (non-Javadoc)
+	 * @see de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.outline.IOriginalPixels#setOriginalBinaryPixels(int[][])
 	 */
+	@Override
 	public void setOriginalBinaryPixels(int[][] originalPixels) {
 		this.originalBinaryPixels = originalPixels;
 	}
