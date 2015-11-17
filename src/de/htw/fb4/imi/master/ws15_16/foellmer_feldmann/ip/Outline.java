@@ -30,8 +30,9 @@ public class Outline {
 	protected boolean isClosed = false;
 	
 	protected int type = TYPE_OUTER;
-	
-	
+	private int minY = Integer.MAX_VALUE;
+	private int maxY = -1;		
+
 	public Outline(boolean isOuter) {
 		super();
 		
@@ -80,6 +81,14 @@ public class Outline {
 		if (vertex.getX() > lineLimits[1]) {
 			lineLimits[1] = vertex.getX();
 		}
+		
+		if (vertex.getY() < this.minY) {
+			this.minY = vertex.getY();
+		}
+		
+		if (vertex.getY() > this.maxY) {
+			this.maxY = vertex.getY();
+		}
 	}
 
 	public void addEdge(Edge edge)
@@ -122,5 +131,13 @@ public class Outline {
 	
 	public int getRightLimitX(int y) {
 		return this.outlineLimits.get(y)[1];
+	}
+	
+	public int getTopLimitY() {
+		return this.minY;
+	}
+	
+	public int getBottomLimitY() {
+		return this.maxY;
 	}
 }
