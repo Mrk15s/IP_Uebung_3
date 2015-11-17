@@ -20,39 +20,6 @@ import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
  * @since 17.11.2015
  */
 public class Potrace implements IOutlinePathFinder {
-	public enum TurnPolicy {
-		/**
-		 * Policy to force turn to left on pattern WHITE BLACK BLACK WHITE
-		 */
-		TURN_LEFT, 
-		TURN_RIGHT;
-
-		/**
-		 * Get the next edge according to the turn policy.
-		 * 
-		 * @return
-		 * @throws IllegalStateException
-		 */
-		public Edge getNextEdge(Edge currentEdge, Vertex leftWhiteAhead, Vertex rightBlackAhead) {
-			switch (this) {
-			case TURN_LEFT:
-				return this.getLeftEdge(currentEdge, leftWhiteAhead);
-			case TURN_RIGHT:
-				return this.getRightEdge(currentEdge, rightBlackAhead);
-			default:
-				throw new IllegalStateException("No turn policy implemented for " + this + "!");
-			}
-		}
-		
-		private Edge getLeftEdge(Edge currentEdge, Vertex leftWhiteAhead) {
-			return new Edge(leftWhiteAhead, currentEdge.getBlack());			
-		}
-		
-		private Edge getRightEdge(Edge currentEdge, Vertex rightBlackAhead) {
-			return new Edge(currentEdge.getWhite(), rightBlackAhead);
-		}
-	}
-
 	private static final int PROCESSED = 1;
 
 	private TurnPolicy turnPolicy = TurnPolicy.TURN_LEFT;
@@ -70,6 +37,14 @@ public class Potrace implements IOutlinePathFinder {
 	@Override
 	public void setOriginalBinaryPixels(int width, int height, int[] originalPixels) {
 		this.setOriginalBinaryPixels(ImageUtil.get2DFrom1DArray(width, height, originalPixels));
+	}
+
+	public TurnPolicy getTurnPolicy() {
+		return turnPolicy;
+	}
+
+	public void setTurnPolicy(TurnPolicy turnPolicy) {
+		this.turnPolicy = turnPolicy;
 	}
 
 	/*
@@ -163,7 +138,6 @@ public class Potrace implements IOutlinePathFinder {
 			return potentialEdge;
 		}
 
-		// no pattern matched at all
 		return null;
 	}		
 

@@ -23,7 +23,7 @@ public class OutlineSequence {
 	
 	protected boolean isClosed = false;
 	
-	protected int type;
+	protected int type = TYPE_OUTER;
 	
 	public boolean isClosed() {
 		return isClosed;
