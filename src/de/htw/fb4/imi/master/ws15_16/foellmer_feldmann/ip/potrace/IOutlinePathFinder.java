@@ -9,7 +9,7 @@ import java.util.Set;
 
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Edge;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.IOriginalPixels;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.OutlineSequence;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Outline;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 
 /**
@@ -20,11 +20,12 @@ import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
  */
 public interface IOutlinePathFinder extends IOriginalPixels {
 	public enum TurnPolicy {
+		TURN_RIGHT, 
 		/**
 		 * Policy to force turn to left on pattern WHITE BLACK BLACK WHITE
 		 */
-		TURN_LEFT, 
-		TURN_RIGHT;
+		TURN_LEFT 
+		;
 
 		/**
 		 * Get the next edge according to the turn policy.
@@ -65,9 +66,9 @@ public interface IOutlinePathFinder extends IOriginalPixels {
 	/**
 	 * Find all outline paths within an image.
 	 * 
-	 * @return a set of {@link OutlineSequence}.
+	 * @return a set of {@link Outline}.
 	 */
-	Set<OutlineSequence> find();
+	Set<Outline> find();
 	
 	void setTurnPolicy(TurnPolicy turnPolicy);	
 }

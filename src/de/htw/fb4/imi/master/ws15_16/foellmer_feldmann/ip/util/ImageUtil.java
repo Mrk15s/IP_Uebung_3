@@ -117,4 +117,8 @@ public class ImageUtil {
 		return i == FOREGROUND_VALUE;
 	}
 	
+	public static int invertPixel(int pixel)
+	{
+		return (isForegoundPixel(pixel) ? Colors.WHITE : FOREGROUND_VALUE);
+	}
 }

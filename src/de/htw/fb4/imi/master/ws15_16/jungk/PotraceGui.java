@@ -29,7 +29,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Edge;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Factory;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.OutlineSequence;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Outline;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.ff.AbstractFloodFilling.Mode;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.IOutlinePathFinder;
@@ -212,7 +212,7 @@ public class PotraceGui extends JPanel {
 
 		// only measure labeling algorithm runtime, not the time to color pixels
 		long startTime = System.currentTimeMillis();
-		Set<OutlineSequence> foundOutlines = this.potraceAlgorithm.find();
+		Set<Outline> foundOutlines = this.potraceAlgorithm.find();
 		long time = System.currentTimeMillis() - startTime;
 
 		// mark outlines somehow
@@ -227,12 +227,12 @@ public class PotraceGui extends JPanel {
 	 * @param foundOutlines
 	 * @param dstPixels
 	 */
-	private void paintOutlines(Set<OutlineSequence> foundOutlines, int[] dstPixels) {
+	private void paintOutlines(Set<Outline> foundOutlines, int[] dstPixels) {
 		for (int i = 0; i < dstPixels.length; i++) {
 			dstPixels[i] = Colors.WHITE;
 		}
 
-		for (OutlineSequence outline : foundOutlines) {
+		for (Outline outline : foundOutlines) {
 			int color;
 
 			if (outline.isOuter()) {
