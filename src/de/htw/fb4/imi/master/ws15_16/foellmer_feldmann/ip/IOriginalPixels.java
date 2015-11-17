@@ -19,5 +19,9 @@ public interface IOriginalPixels {
 	 * @param originalPixels
 	 */
 	void setOriginalBinaryPixels(int[][] originalPixels);
+	
+	boolean isWithinImageBoundaries(int x, int y);
+	
+	boolean isWithinImageBoundaries(Vertex v);
 
 }

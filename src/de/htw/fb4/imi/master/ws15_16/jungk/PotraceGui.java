@@ -120,7 +120,7 @@ public class PotraceGui extends JPanel {
 		controls.add(turnPoliciesList, c);
 
 		this.imagesPanel = new JPanel(new FlowLayout());
-		imagesPanel.add(srcView);
+//		imagesPanel.add(srcView); // srcView should not be displayed anymore
 		imagesPanel.add(dstView);
 
 		add(controls, BorderLayout.NORTH);
@@ -128,7 +128,7 @@ public class PotraceGui extends JPanel {
 		add(scrollPane, BorderLayout.SOUTH);
 
 		setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
-		
+
 		this.runPotrace();
 	}
 
@@ -197,9 +197,11 @@ public class PotraceGui extends JPanel {
 		this.potraceAlgorithm = Factory.newPotraceAlgorithm();
 		this.potraceAlgorithm.setTurnPolicy(policy);
 		time = detectAndShowOutline(dstPixels);
-		
+
 		dstView.setPixels(dstPixels, width, height);
 		frame.pack();
+
+		dstView.saveImage("out.png");
 
 		statusArea.setText(message + "\nRequired time: " + time + " ms");
 	}
@@ -212,15 +214,16 @@ public class PotraceGui extends JPanel {
 		long startTime = System.currentTimeMillis();
 		Set<OutlineSequence> foundOutlines = this.potraceAlgorithm.find();
 		long time = System.currentTimeMillis() - startTime;
-		
+
 		// mark outlines somehow
 		this.paintOutlines(foundOutlines, dstPixels);
-		
+
 		return time;
 	}
 
 	/**
 	 * TODO @Markus : Hier Kanten der Outlines zeichnen
+	 * 
 	 * @param foundOutlines
 	 * @param dstPixels
 	 */
@@ -228,24 +231,36 @@ public class PotraceGui extends JPanel {
 		for (int i = 0; i < dstPixels.length; i++) {
 			dstPixels[i] = Colors.WHITE;
 		}
-		
+
 		for (OutlineSequence outline : foundOutlines) {
+			int color;
+
 			if (outline.isOuter()) {
-				for (Edge outlineEdge : outline.getEdges()) {
-					Vertex white = outlineEdge.getWhite();
-					
-					int whitePos1D = ImageUtil.calc1DPosition(dstPixels.length, white.getX(), white.getY());
-					dstPixels[whitePos1D] = Colors.WHITE;
-					
-					Vertex black = outlineEdge.getBlack();
-					
-					int blackPos1D = ImageUtil.calc1DPosition(dstPixels.length, black.getX(), black.getY());
-					dstPixels[blackPos1D] = Colors.BLACK;
-				}
+				color = Colors.BLUE;
 			} else {
 				// paint inner outline
+				color = Colors.ORANGE;
 			}
-		}		
+
+			for (Edge outlineEdge : outline.getEdges()) {
+				Vertex white = outlineEdge.getWhite();
+
+				if (this.potraceAlgorithm.isWithinImageBoundaries(white)) {
+					int whitePos1D = ImageUtil.calc1DPosition(this.srcView.getImgWidth(), white.getX(), white.getY());
+					dstPixels[whitePos1D] = Colors.WHITE;
+				}
+
+				Vertex black = outlineEdge.getBlack();
+				if (this.potraceAlgorithm.isWithinImageBoundaries(black)) {
+					// zeichne Kontur-Pixel TODO nur Linie am linken Rand des
+					// Pixels zeichnen, abhängig von outlineEdge.getDirectionX()
+					// und outlineEdge.getDirectionY()
+					int blackPos1D = ImageUtil.calc1DPosition(this.srcView.getImgWidth(), black.getX(), black.getY());
+					dstPixels[blackPos1D] = color;
+				}
+			}
+
+		}
 	}
 
 	public static int calculateGrayValue(int pixelValue) {

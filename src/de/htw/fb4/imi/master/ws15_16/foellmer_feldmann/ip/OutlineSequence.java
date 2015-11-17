@@ -35,7 +35,7 @@ public class OutlineSequence {
 
 	private void addVertex(Vertex vertex)
 	{
-		if (this.vertices.get(0).equals(vertex)) {
+		if (this.vertices.size() > 0 && this.vertices.get(0).equals(vertex)) {
 			// path is completed
 			this.isClosed = true;			
 		}
@@ -45,12 +45,12 @@ public class OutlineSequence {
 	
 	public void addEdge(Edge edge)
 	{
-		if (this.edges.get(0).equals(edge)) {
+		if (this.edges.size() > 0 && this.edges.get(0).equals(edge)) {
 			// path is completed
 			this.isClosed = true;			
 		}
 		
-		this.addEdge(edge);
+		this.edges.add(edge);
 		this.addVertex(edge.getBlack());
 	}
 
@@ -60,5 +60,9 @@ public class OutlineSequence {
 	
 	public Edge[] getEdges() {
 		return edges.toArray(new Edge[this.edges.size()]);
+	}
+
+	public boolean hasEdge(Edge e) {
+		return this.edges.contains(e);
 	}
 }

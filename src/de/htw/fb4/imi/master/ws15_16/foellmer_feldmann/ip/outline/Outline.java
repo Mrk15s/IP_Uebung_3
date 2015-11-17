@@ -6,6 +6,7 @@
 package de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.outline;
 
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.IOriginalPixels;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
 
 /**
@@ -155,5 +156,17 @@ public class Outline implements IOriginalPixels {
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean isWithinImageBoundaries(int x, int y) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isWithinImageBoundaries(Vertex v) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -55,8 +55,8 @@ public class Potrace implements IOutlinePathFinder {
 	 */
 	@Override
 	public void setOriginalBinaryPixels(int[][] originalPixels) {
-		int width = originalPixels.length;
-		int height = originalPixels[0].length;
+		this.width = originalPixels.length;
+		this.height = originalPixels[0].length;
 
 		this.originalPixels = originalPixels;
 		this.processedPixels = new int[width][height];
@@ -97,7 +97,12 @@ public class Potrace implements IOutlinePathFinder {
 
 		while (null != e) {
 			e = findNextEdgeOnOutline(e, sequence);
-			sequence.addEdge(e);
+			
+			if (sequence.hasEdge(e)) {
+				e = null;
+			} else {
+				sequence.addEdge(e);
+			}
 		}
 
 		return sequence;
@@ -157,7 +162,9 @@ public class Potrace implements IOutlinePathFinder {
 		Vertex rightBlackAhead = new Vertex(currentEdge.getWhite().getX() + currentEdge.getDirectionX(),
 				currentEdge.getWhite().getY() + currentEdge.getDirectionY());
 
-		if (ImageUtil.isForegoundPixel(this.originalPixels[leftBlackAhead.getX()][leftBlackAhead.getY()])
+		if ( this.isWithinImageBoundaries(leftBlackAhead)
+				&& this.isWithinImageBoundaries(rightBlackAhead)
+				&& ImageUtil.isForegoundPixel(this.originalPixels[leftBlackAhead.getX()][leftBlackAhead.getY()])
 				&& ImageUtil.isForegoundPixel(this.originalPixels[rightBlackAhead.getX()][rightBlackAhead.getY()])) {
 			// pattern matches
 			return new Edge(currentEdge.getWhite(), rightBlackAhead);
@@ -181,8 +188,10 @@ public class Potrace implements IOutlinePathFinder {
 		Vertex rightWhiteAhead = new Vertex(currentEdge.getWhite().getX() + currentEdge.getDirectionX(),
 				currentEdge.getWhite().getY() + currentEdge.getDirectionY());
 
-		if (ImageUtil.isForegoundPixel(this.originalPixels[leftBlackAhead.getX()][leftBlackAhead.getY()])
-				&& !ImageUtil.isForegoundPixel(this.originalPixels[rightWhiteAhead.getX()][rightWhiteAhead.getY()])) {
+		if (this.isWithinImageBoundaries(leftBlackAhead)
+				&& ImageUtil.isForegoundPixel(this.originalPixels[leftBlackAhead.getX()][leftBlackAhead.getY()])
+				&& (!this.isWithinImageBoundaries(rightWhiteAhead)
+						|| !ImageUtil.isForegoundPixel(this.originalPixels[rightWhiteAhead.getX()][rightWhiteAhead.getY()]))) {
 			// pattern matches
 			return new Edge(rightWhiteAhead, leftBlackAhead);
 		}
@@ -205,8 +214,10 @@ public class Potrace implements IOutlinePathFinder {
 		Vertex rightWhiteAhead = new Vertex(currentEdge.getWhite().getX() + currentEdge.getDirectionX(),
 				currentEdge.getWhite().getY() + currentEdge.getDirectionY());
 
-		if (!ImageUtil.isForegoundPixel(this.originalPixels[leftWhiteAhead.getX()][leftWhiteAhead.getY()])
-				&& !ImageUtil.isForegoundPixel(this.originalPixels[rightWhiteAhead.getX()][rightWhiteAhead.getY()])) {
+		if ((!this.isWithinImageBoundaries(leftWhiteAhead)
+				|| !ImageUtil.isForegoundPixel(this.originalPixels[leftWhiteAhead.getX()][leftWhiteAhead.getY()]))
+				&& (!this.isWithinImageBoundaries(rightWhiteAhead)
+						|| !ImageUtil.isForegoundPixel(this.originalPixels[rightWhiteAhead.getX()][rightWhiteAhead.getY()]))) {
 			// pattern matches
 			return new Edge(leftWhiteAhead, currentEdge.getBlack());
 		}
@@ -229,12 +240,22 @@ public class Potrace implements IOutlinePathFinder {
 		Vertex rightBlackAhead = new Vertex(currentEdge.getWhite().getX() + currentEdge.getDirectionX(),
 				currentEdge.getWhite().getY() + currentEdge.getDirectionY());
 
-		if (!ImageUtil.isForegoundPixel(this.originalPixels[leftWhiteAhead.getX()][leftWhiteAhead.getY()])
+		if ((!this.isWithinImageBoundaries(leftWhiteAhead) || 
+				!ImageUtil.isForegoundPixel(this.originalPixels[leftWhiteAhead.getX()][leftWhiteAhead.getY()]))
+				&& this.isWithinImageBoundaries(rightBlackAhead)
 				&& ImageUtil.isForegoundPixel(this.originalPixels[rightBlackAhead.getX()][rightBlackAhead.getY()])) {
 			// pattern matches, so delegate to configured turn policy
 			return this.turnPolicy.getNextEdge(currentEdge, leftWhiteAhead, rightBlackAhead);
 		}
 
 		return null;
+	}
+
+	public boolean isWithinImageBoundaries(int x, int y) {		 
+		return (x >= 0) && (x < width) && (y >= 0) && (y < height); 		
+	}
+	
+	public boolean isWithinImageBoundaries(Vertex v) {		 
+		return this.isWithinImageBoundaries(v.getX(), v.getY()); 		
 	}
 }
