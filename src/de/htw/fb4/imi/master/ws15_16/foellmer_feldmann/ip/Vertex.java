@@ -15,6 +15,13 @@ public class Vertex {
 	protected int x;
 	protected int y;
 	
+	public Vertex(int x, int y) {
+		super();
+		
+		this.x = x;
+		this.y = y;
+	}
+
 	public int getX() {
 		return x;
 	}

@@ -19,6 +19,8 @@ public class OutlineSequence {
 	public static final int TYPE_OUTER = 1;
 	
 	protected List<Vertex> vertices = new ArrayList<>();
+	protected List<Edge> edges = new ArrayList<>();
+	
 	protected boolean isClosed = false;
 	
 	protected int type;
@@ -31,7 +33,7 @@ public class OutlineSequence {
 		return TYPE_OUTER == this.type;
 	}
 
-	public void addVertex(Vertex vertex)
+	private void addVertex(Vertex vertex)
 	{
 		if (this.vertices.get(0).equals(vertex)) {
 			// path is completed
@@ -40,8 +42,23 @@ public class OutlineSequence {
 		
 		this.vertices.add(vertex);
 	}
+	
+	public void addEdge(Edge edge)
+	{
+		if (this.edges.get(0).equals(edge)) {
+			// path is completed
+			this.isClosed = true;			
+		}
+		
+		this.addEdge(edge);
+		this.addVertex(edge.getBlack());
+	}
 
 	public Vertex[] getVertices() {
 		return vertices.toArray(new Vertex[this.vertices.size()]);
+	}
+	
+	public Edge[] getEdges() {
+		return edges.toArray(new Edge[this.edges.size()]);
 	}
 }

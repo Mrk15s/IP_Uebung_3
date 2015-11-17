@@ -8,7 +8,6 @@ package de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.ff.AbstractFloodFilling;
 
 /**
@@ -118,30 +117,4 @@ public class ImageUtil {
 		return i == FOREGROUND_VALUE;
 	}
 	
-	public static Vertex getRightVertex(int x, int y)
-	{
-		Vertex newNode = new Vertex();
-		newNode.setX(x + 1);
-		newNode.setY(y);
-		
-		return newNode;
-	}
-	
-	public static Vertex getBewloVertex(int x, int y)
-	{
-		Vertex newNode = new Vertex();
-		newNode.setX(x);
-		newNode.setY(y + 1);
-		
-		return newNode;
-	}
-	
-	public static Vertex getBelowLeftVertex(int x, int y)
-	{
-		Vertex newNode = new Vertex();
-		newNode.setX(x - 1);
-		newNode.setY(y + 1);
-		
-		return newNode;
-	}
 }
