@@ -28,10 +28,21 @@ public class ImageView extends JScrollPane{
 	private Dimension maxSize = null;
 	private int borderX = -1;
 	private int borderY = -1;
-	private double maxViewMagnification = 1.0;		// use 0.0 to disable limits 
+	private double maxViewMagnification = 0.0;		// use 0.0 to disable limits 
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
 	
+	private double zoom = 10.0; 
+	
+	public double getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(double zoom) {
+		screen.revalidate();
+		this.zoom = zoom;
+	}
+
 	int pixels[] = null;		// pixel array in ARGB format
 	
 	public ImageView(int width, int height) {
@@ -278,7 +289,7 @@ public class ImageView extends JScrollPane{
 		
 		public Dimension getPreferredSize() {
 			if(image != null) 
-				return new Dimension(image.getWidth(), image.getHeight());
+				return new Dimension((int)(image.getWidth()*zoom), (int)(image.getHeight()*zoom));
 			else
 				return new Dimension(100, 60);
 		}

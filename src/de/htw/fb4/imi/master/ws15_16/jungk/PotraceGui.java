@@ -24,7 +24,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Edge;
@@ -49,11 +52,17 @@ public class PotraceGui extends JPanel {
 	private static final String initalOpen = "test3.png";
 	private static final int TEXTAREA_COLS = 30;
 	private static final int TEXTAREA_ROWS = 5;
+	
+	private static final int windowWidth = 800;
+	private static final int windowHeight = 400;
+	
+	private JSlider zoomSlider;
 
 	private static JFrame frame;
 
 	private ImageView srcView; // source image view
 	private ImageView dstView; // binarized image view
+
 
 	private JComboBox<String> turnPoliciesList; // the selected binarization
 												// method
@@ -104,6 +113,22 @@ public class PotraceGui extends JPanel {
 				runPotrace();
 			}
 		});
+		
+        // slider for zoom in picture
+        JLabel zoomLabel = new JLabel("Zoom");
+        this.zoomSlider = new JSlider(0, 255, 128);    
+        zoomSlider.setMinorTickSpacing(25);
+        zoomSlider.setMajorTickSpacing(50);
+        zoomSlider.setPaintLabels(true);
+        zoomSlider.setPaintTicks(true);
+    	
+    	// Change-Listener for zoom slider
+        zoomSlider.addChangeListener(new ChangeListener() {
+  			@Override
+  			public void stateChanged(ChangeEvent e) {
+  				runPotrace();
+  			}
+  		});
 
 		// some status text
 		statusArea = new JTextArea(TEXTAREA_ROWS, TEXTAREA_COLS);
@@ -118,10 +143,14 @@ public class PotraceGui extends JPanel {
 		controls.add(load, c);
 		controls.add(turnPolicyText, c);
 		controls.add(turnPoliciesList, c);
+		controls.add(zoomLabel, c);
+		controls.add(zoomSlider, c);
 
 		this.imagesPanel = new JPanel(new FlowLayout());
+		imagesPanel.setPreferredSize(new Dimension(windowWidth, windowHeight));
 //		imagesPanel.add(srcView); // srcView should not be displayed anymore
 		imagesPanel.add(dstView);
+		
 
 		add(controls, BorderLayout.NORTH);
 		add(imagesPanel, BorderLayout.CENTER);
@@ -262,6 +291,11 @@ public class PotraceGui extends JPanel {
 
 		}
 	}
+	
+	private void paintRaster(){
+		
+	}
+	
 
 	public static int calculateGrayValue(int pixelValue) {
 		// greyValue = R + G + B / 3
