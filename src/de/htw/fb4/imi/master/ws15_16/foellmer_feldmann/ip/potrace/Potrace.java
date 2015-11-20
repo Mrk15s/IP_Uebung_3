@@ -168,9 +168,9 @@ public class Potrace implements IOutlinePathFinder {
 
 	private void invertLineBetween(int y, int leftLimitX, int rightLimitX, Outline outerOutline) {
 		for (int x = leftLimitX + 1; x < rightLimitX; x++) {
-//			if (!outerOutline.containsWhiteVertex(new Vertex(x, y))) {
+			if (!outerOutline.containsWhiteVertex(new Vertex(x, y))) {
 				this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
-//			}
+			}
 		}
 	}
 
