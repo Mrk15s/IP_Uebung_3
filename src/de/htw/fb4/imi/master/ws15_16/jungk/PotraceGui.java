@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -37,6 +38,7 @@ import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.ff.AbstractFloodFilling.Mode;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.IOutlinePathFinder;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.IOutlinePathFinder.TurnPolicy;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.Potrace;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.Colors;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
 
@@ -49,7 +51,7 @@ public class PotraceGui extends JPanel {
 	private static final File openPath = new File(".");
 	private static String title = "Potrace ";
 	private static final String author = "Markus Föllmer & Sascha Feldmann";
-	private static final String initalOpen = "test3.png";
+	private static final String initalOpen = "klein.png";
 	private static final int TEXTAREA_COLS = 30;
 	private static final int TEXTAREA_ROWS = 5;
 	
@@ -70,6 +72,7 @@ public class PotraceGui extends JPanel {
 
 	private String message;
 	protected Mode mode;
+	private JCheckBox displayInnerCheckbox;
 
 	private JPanel imagesPanel;
 	private IOutlinePathFinder potraceAlgorithm;
@@ -132,6 +135,9 @@ public class PotraceGui extends JPanel {
 		// some status text
 		statusArea = new JTextArea(TEXTAREA_ROWS, TEXTAREA_COLS);
 		statusArea.setEditable(false);
+		
+		// Inner outlines checkbox
+		this.displayInnerCheckbox = new JCheckBox("Inner outlines");
 
 		JScrollPane scrollPane = new JScrollPane(statusArea);
 
@@ -144,11 +150,19 @@ public class PotraceGui extends JPanel {
 		controls.add(turnPoliciesList, c);
 		controls.add(zoomLabel, c);
 		controls.add(zoomSlider, c);
+		controls.add(displayInnerCheckbox, c);
+		
+		displayInnerCheckbox.addChangeListener(new ChangeListener() {
+  			@Override
+  			public void stateChanged(ChangeEvent e) {
+  				dstView.setDisplayInner(displayInnerCheckbox.isSelected());		
+  				repaint();
+  			}
+  		});
 
 		this.imagesPanel = new JPanel(new FlowLayout());
 		imagesPanel.setPreferredSize(new Dimension(windowWidth, windowHeight));
-		imagesPanel.add(dstView);
-		
+		imagesPanel.add(dstView);		
 
 		add(controls, BorderLayout.NORTH);
 		add(imagesPanel, BorderLayout.CENTER);
@@ -224,8 +238,9 @@ public class PotraceGui extends JPanel {
 		this.potraceAlgorithm = Factory.newPotraceAlgorithm();
 		this.potraceAlgorithm.setTurnPolicy(policy);
 		time = detectAndShowOutline(dstPixels);
-
-		dstView.setPixels(dstPixels, width, height);
+//
+		dstView.setPixels(srcPixels, width, height);
+//		dstView.setPixels(ImageUtil.get1DFrom2DArray(width, height, ((Potrace) this.potraceAlgorithm).getProcessingPixels()), width, height);
 		frame.pack();
 
 		dstView.saveImage("out.png");

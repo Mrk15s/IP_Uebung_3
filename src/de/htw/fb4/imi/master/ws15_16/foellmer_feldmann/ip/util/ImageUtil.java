@@ -121,4 +121,12 @@ public class ImageUtil {
 	{
 		return (isForegoundPixel(pixel) ? Colors.WHITE : FOREGROUND_VALUE);
 	}
+
+	public static boolean isOdd(int i) {
+		return 0 != i % 2;
+	}
+
+	public static boolean isEven(int i) {
+		return 0 == i % 2;
+	}
 }

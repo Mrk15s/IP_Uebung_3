@@ -3,12 +3,14 @@
 // Date: 2010-03-15
 package de.htw.fb4.imi.master.ws15_16.jungk;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.SystemColor;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -26,7 +28,13 @@ public class ImageView extends JScrollPane {
 
 	private static final long serialVersionUID = 1L;
 
-	static final int MIN_ZOOM = 25;
+	static final int MIN_ZOOM = 50;
+	
+	static final Color COLOR_INNER_OUTLINE = Color.ORANGE;
+
+	static final Color COLOR_OUTER_OUTLINE = Color.RED;
+	
+	static final float WIDTH_OUTLINE = 2;
 
 	private ImageScreen screen = null;
 	private Dimension maxSize = null;
@@ -35,11 +43,14 @@ public class ImageView extends JScrollPane {
 	private double maxViewMagnification = 0.0; // use 0.0 to disable limits
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
+	
 
 	protected Set<Outline> outlines;
 
 	private double zoom = MIN_ZOOM;
 	int pixels[] = null; // pixel array in ARGB format
+
+	private boolean displayInnerOutline = false;
 
 	public ImageView(int width, int height) {
 		// construct empty image of given size
@@ -51,6 +62,11 @@ public class ImageView extends JScrollPane {
 	public ImageView(File file) {
 		// construct image from file
 		loadImage(file);
+	}
+
+	public void setDisplayInner(boolean selected) {
+		this.displayInnerOutline = selected;	
+		screen.revalidate();
 	}
 
 	public double getZoom() {
@@ -261,7 +277,6 @@ public class ImageView extends JScrollPane {
 	}
 
 	class ImageScreen extends JComponent {
-
 		private static final long serialVersionUID = 1L;
 
 		private BufferedImage image = null;
@@ -332,7 +347,9 @@ public class ImageView extends JScrollPane {
 
 		private void paintOutlines(Graphics g) {
 			for (Outline outline : outlines) {
-				paintOutline(g, outline);
+				if (outline.isOuter() || displayInnerOutline) {
+					paintOutline(g, outline);
+				}
 			}
 		}
 
@@ -343,7 +360,7 @@ public class ImageView extends JScrollPane {
 		}
 
 		private void paintEdgeOnOutline(Graphics g, Outline outline, Edge edgeOnOutline) {
-			Color edgeColor = outline.isOuter() ? Color.RED : Color.ORANGE;
+			Color edgeColor = outline.isOuter() ? COLOR_OUTER_OUTLINE : COLOR_INNER_OUTLINE;
 
 			// offset to set the correct black pixel corner
 			int offsetX = 0;
@@ -366,11 +383,13 @@ public class ImageView extends JScrollPane {
 				offsetY = 0;
 			}
 			
+//			offsetX -= outline.isOuter() ? 0 : 1;
 			int startX = this.calcScaledX(edgeOnOutline.getBlack().getX() + offsetX);
 			int startY = this.calcScaledY(edgeOnOutline.getBlack().getY() + offsetY);
 			int targetX = this.calcScaledX(edgeOnOutline.getBlack().getX() + edgeOnOutline.getDirectionX() + offsetX);
 			int targetY = this.calcScaledY(edgeOnOutline.getBlack().getY() + edgeOnOutline.getDirectionY() + offsetY);
 
+		    ((Graphics2D) g).setStroke(new BasicStroke(WIDTH_OUTLINE));
 			g.setColor(edgeColor);
 			g.drawLine(startX, startY, targetX, targetY);
 		}
@@ -390,5 +409,4 @@ public class ImageView extends JScrollPane {
 				return new Dimension(100, 60);
 		}
 	}
-
 }

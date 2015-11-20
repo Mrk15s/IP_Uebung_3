@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
 
 /**
  * [SHORT_DESCRIPTION] 
@@ -20,12 +24,13 @@ public class Outline {
 	public static final int TYPE_INNER = 0;
 	public static final int TYPE_OUTER = 1;
 	
-	protected List<Vertex> vertices = new ArrayList<>();
+	protected List<Vertex> whiteVertices = new ArrayList<>();
+	protected List<Vertex> blackVertices = new ArrayList<>();
 	protected List<Edge> edges = new ArrayList<>();
 	/**
-	 * Map of y values -> min and max x values to quickly get lowest and largest X value for a single line.
+	 * Map of y values -> x values, starting from the minimum, going to top.
 	 */
-	protected Map<Integer, int[]> outlineLimits = new HashMap<>();
+	protected Map<Integer, SortedSet<Integer>> outlineLimits = new HashMap<>();
 	
 	protected boolean isClosed = false;
 	
@@ -51,36 +56,26 @@ public class Outline {
 		return TYPE_OUTER == this.type;
 	}
 
-	private void addVertex(Vertex vertex)
+	private void addWhiteVertex(Vertex vertex)
 	{
-		if (this.vertices.size() > 0 && this.vertices.get(0).equals(vertex)) {
+		if (this.whiteVertices.size() > 0 && this.whiteVertices.get(0).equals(vertex)) {
 			// path is completed
 			this.isClosed = true;			
 		}
 		
-		this.vertices.add(vertex);
-		this.determineLimit(vertex);
+		this.whiteVertices.add(vertex);
 	}
 	
 	private void determineLimit(Vertex vertex) {
 		if (!this.outlineLimits.containsKey(vertex.getY())) {
 			// add max and min x values for the given Y to our limits map 
-			int[] initialLimits = new int[2];
-			initialLimits[0] = Integer.MAX_VALUE; // initial min x
-			initialLimits[1] = -1; // initial max x
+			SortedSet<Integer> initialLimits = new TreeSet<>();
 			
 			this.outlineLimits.put(vertex.getY(), initialLimits);
 		}
 		
-		int[] lineLimits = this.outlineLimits.get(vertex.getY());
-		
-		if (vertex.getX() < lineLimits[0]) {
-			lineLimits[0] = vertex.getX();
-		}
-		
-		if (vertex.getX() > lineLimits[1]) {
-			lineLimits[1] = vertex.getX();
-		}
+		SortedSet<Integer> lineLimits = this.outlineLimits.get(vertex.getY());		
+		lineLimits.add(vertex.getX());
 		
 		if (vertex.getY() < this.minY) {
 			this.minY = vertex.getY();
@@ -89,6 +84,16 @@ public class Outline {
 		if (vertex.getY() > this.maxY) {
 			this.maxY = vertex.getY();
 		}
+	}
+	
+	private void addBlackVertex(Vertex black) {
+		if (this.blackVertices.size() > 0 && this.blackVertices.get(0).equals(black)) {
+			// path is completed
+			this.isClosed = true;			
+		}
+		
+		this.blackVertices.add(black);
+		this.determineLimit(black);
 	}
 
 	public void addEdge(Edge edge)
@@ -99,11 +104,12 @@ public class Outline {
 		}
 		
 		this.edges.add(edge);
-		this.addVertex(edge.getBlack());
-	}
+		this.addWhiteVertex(edge.getWhite());
+		this.addBlackVertex(edge.getBlack());
+	}	
 
 	public Vertex[] getVertices() {
-		return vertices.toArray(new Vertex[this.vertices.size()]);
+		return whiteVertices.toArray(new Vertex[this.whiteVertices.size()]);
 	}
 	
 	public Edge[] getEdges() {
@@ -116,21 +122,29 @@ public class Outline {
 
 	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex) {
 		if (this.outlineLimits.containsKey(pixelVertex.getY())) {
-			int[] lineLimits = this.outlineLimits.get(pixelVertex.getY());
+			Integer[] lineLimits = this.outlineLimits.get(pixelVertex.getY()).toArray(new Integer[0]);
 			
-			return lineLimits[0] < pixelVertex.getX() 
-					&& lineLimits[1] > pixelVertex.getX();
+			for (int i = 0; i < lineLimits.length - 1; i++) {
+				int xValue = lineLimits[i];
+				int nextXValue = lineLimits[i + 1];
+				
+				if (
+					xValue < pixelVertex.getX()
+					&& nextXValue > pixelVertex.getX()) {
+					return true;
+				}				
+			}
 		}
 		
 		return false;
 	}
 
 	public int getLeftLimitX(int y) {
-		return this.outlineLimits.get(y)[0];
+		return this.outlineLimits.get(y).first();
 	}
 	
 	public int getRightLimitX(int y) {
-		return this.outlineLimits.get(y)[1];
+		return this.outlineLimits.get(y).last();
 	}
 	
 	public int getTopLimitY() {
@@ -140,4 +154,40 @@ public class Outline {
 	public int getBottomLimitY() {
 		return this.maxY;
 	}
+
+	public int getRightLimitX(int x, int y) {
+		if (this.outlineLimits.containsKey(y)) {
+			Integer[] lineLimits = this.outlineLimits.get(y).toArray(new Integer[0]);
+			
+			for (int i = 0; i < lineLimits.length - 1; i++) {
+				int xValue = lineLimits[i];
+				int nextXValue = lineLimits[i + 1];
+				
+				if (ImageUtil.isEven(i) && xValue == x) {
+					return nextXValue;
+				}
+			}
+		}
+		
+		return -1;		
+	}
+	
+	public Integer[] getXValues(int y)
+	{
+		return this.outlineLimits.get(y).toArray(new Integer[0]);
+	}
+
+	public boolean containsWhiteVertex(Vertex vertex) {
+		return this.whiteVertices.contains(vertex);
+	}
+	
+	public boolean containsBlackVertex(Vertex vertex) {
+		return this.blackVertices.contains(vertex);
+	}
+
+	public boolean containsVertex(Vertex vertex) {
+		return this.containsWhiteVertex(vertex) || this.containsBlackVertex(vertex);
+	}
+	
+	
 }
