@@ -38,7 +38,7 @@ public class ImageView extends JScrollPane{
 		return zoom;
 	}
 
-	public void setZoom(double zoom) {
+	public void setZoom(double zoom) {		
 		screen.revalidate();
 		this.zoom = zoom;
 	}

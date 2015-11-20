@@ -87,7 +87,7 @@ public class PotraceGui extends JPanel {
 		srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
 
 		// create an empty destination image
-		dstView = new ImageView(srcView.getImgWidth(), srcView.getImgHeight());
+		dstView = new ImageView(maxWidth, maxHeight);
 		dstView.setMaxSize(new Dimension(maxWidth, maxHeight));
 
 		// load image button
@@ -97,7 +97,6 @@ public class PotraceGui extends JPanel {
 				File input = openFile();
 				if (input != null) {
 					srcView.loadImage(input);
-					srcView.setMaxSize(new Dimension(maxWidth, maxHeight));
 					runPotrace();
 				}
 			}
@@ -116,7 +115,7 @@ public class PotraceGui extends JPanel {
 		
         // slider for zoom in picture
         JLabel zoomLabel = new JLabel("Zoom");
-        this.zoomSlider = new JSlider(0, 255, 128);    
+        this.zoomSlider = new JSlider(0, 255, 0);    
         zoomSlider.setMinorTickSpacing(25);
         zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintLabels(true);
@@ -126,7 +125,7 @@ public class PotraceGui extends JPanel {
         zoomSlider.addChangeListener(new ChangeListener() {
   			@Override
   			public void stateChanged(ChangeEvent e) {
-  				runPotrace();
+  				dstView.setZoom(zoomSlider.getValue());  				
   			}
   		});
 
@@ -148,7 +147,6 @@ public class PotraceGui extends JPanel {
 
 		this.imagesPanel = new JPanel(new FlowLayout());
 		imagesPanel.setPreferredSize(new Dimension(windowWidth, windowHeight));
-//		imagesPanel.add(srcView); // srcView should not be displayed anymore
 		imagesPanel.add(dstView);
 		
 
