@@ -78,7 +78,8 @@ public class Potrace implements IOutlinePathFinder {
 		OutlineSequenceSet outlineSequences = new OutlineSequenceSet();
 
 		this.findOuterPathes(outlineSequences);
-		this.findInnerPathes(outlineSequences);
+		// TODO fix inner pathes
+//		this.findInnerPathes(outlineSequences);
 
 		return outlineSequences;
 	}
@@ -123,7 +124,7 @@ public class Potrace implements IOutlinePathFinder {
 		for (Outline outerOutline : outerOutlines) {
 			for (int y = outerOutline.getTopLimitY(); y <= outerOutline.getBottomLimitY(); y++) {
 				for (int x = outerOutline.getLeftLimitX(y); x <= outerOutline.getRightLimitX(y); x++) {
-					int pixel = processedPixels[x][y];
+					int pixel = processingPixels[x][y];
 					Vertex pixelVertex = new Vertex(x, y);
 					if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
 							&& outerOutlines.isSurroundedByAnExistingOutline(pixelVertex)) {

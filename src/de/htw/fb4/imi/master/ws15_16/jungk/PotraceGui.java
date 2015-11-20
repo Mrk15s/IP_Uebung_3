@@ -115,7 +115,7 @@ public class PotraceGui extends JPanel {
 		
         // slider for zoom in picture
         JLabel zoomLabel = new JLabel("Zoom");
-        this.zoomSlider = new JSlider(0, 255, 0);    
+        this.zoomSlider = new JSlider(ImageView.MIN_ZOOM, 255, ImageView.MIN_ZOOM);    
         zoomSlider.setMinorTickSpacing(25);
         zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintLabels(true);
@@ -244,6 +244,7 @@ public class PotraceGui extends JPanel {
 
 		// mark outlines somehow
 		this.paintOutlines(foundOutlines, dstPixels);
+		this.dstView.setOutlines(foundOutlines);
 
 		return time;
 	}

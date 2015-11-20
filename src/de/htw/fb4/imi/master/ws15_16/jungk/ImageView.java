@@ -12,17 +12,25 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.File;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Edge;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Outline;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.OutlineSequenceSet;
+import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.Colors;
+
 
 
 public class ImageView extends JScrollPane{
 
 	private static final long serialVersionUID = 1L;
+
+	static final int MIN_ZOOM = 25;
 	
 	private ImageScreen	screen = null;
 	private Dimension maxSize = null;
@@ -32,17 +40,9 @@ public class ImageView extends JScrollPane{
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
 	
-	private double zoom = 10.0; 
-	
-	public double getZoom() {
-		return zoom;
-	}
+	protected Set<Outline> outlines;
 
-	public void setZoom(double zoom) {		
-		screen.revalidate();
-		this.zoom = zoom;
-	}
-
+	private double zoom = MIN_ZOOM; 
 	int pixels[] = null;		// pixel array in ARGB format
 	
 	public ImageView(int width, int height) {
@@ -55,6 +55,24 @@ public class ImageView extends JScrollPane{
 	public ImageView(File file) {
 		// construct image from file
 		loadImage(file);
+	}
+	
+	public double getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(double zoom) {	
+		this.zoom = zoom;
+		screen.revalidate();
+	}
+	
+	public Set<Outline> getOutlines() {
+		return outlines;
+	}
+
+	public void setOutlines(Set<Outline> foundOutlines) {
+		this.outlines = foundOutlines;
+		screen.revalidate();
 	}
 	
 	public void setMaxSize(Dimension dim) {
@@ -235,6 +253,12 @@ public class ImageView extends JScrollPane{
 		
 		private BufferedImage image = null;
 
+		private int offsetX;
+
+		private int offsetY;
+
+		private Rectangle r;
+
 		public ImageScreen(BufferedImage bi) {
 			super();
 			image = bi;
@@ -243,7 +267,7 @@ public class ImageView extends JScrollPane{
 		public void paintComponent(Graphics g) {
 			
 			if (image != null) {
-				Rectangle r = this.getBounds();
+				r = this.getBounds();
 								
 				// limit image view magnification
 				if(maxViewMagnification > 0.0) {
@@ -264,8 +288,8 @@ public class ImageView extends JScrollPane{
 						r.width = (int)(ratioY * image.getWidth() + 0.5);
 				}
 				
-				int offsetX = 0;
-				int offsetY = 0;
+				this.offsetX = 0;
+				this.offsetY = 0;
 				
 				// set background for regions not covered by image
 				if(r.height < getBounds().height) {
@@ -284,9 +308,43 @@ public class ImageView extends JScrollPane{
 				
 				// draw image
 				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
+				
+				this.paintOutlines(g);
 			}
 		}
 		
+		private void paintOutlines(Graphics g) {
+			for (Outline outline : outlines) {
+				paintOutline(g, outline);
+			}
+		}
+
+		private void paintOutline(Graphics g, Outline outline) {
+			for (Edge edgeOnOutline : outline.getEdges()) {
+				paintEdgeOnOutline(g, outline, edgeOnOutline);
+			}
+		}
+
+		private void paintEdgeOnOutline(Graphics g, Outline outline, Edge edgeOnOutline) {
+			Color edgeColor = outline.isOuter() ? Color.RED : Color.ORANGE;			
+			
+			int startX = this.calcScaledX(edgeOnOutline.getBlack().getX());
+			int startY = this.calcScaledY(edgeOnOutline.getBlack().getY());
+			int targetX = this.calcScaledX(edgeOnOutline.getBlack().getX() + edgeOnOutline.getDirectionX());
+			int targetY = this.calcScaledY(edgeOnOutline.getBlack().getY() + edgeOnOutline.getDirectionY());
+			
+			g.setColor(edgeColor);
+			g.drawLine(startX, startY, targetX, targetY);
+		}
+		
+		private int calcScaledX(int x) {
+			return (int) ((((x / this.image.getWidth()) * 100) + x) * zoom);
+		}
+		
+		private int calcScaledY(int y) {
+			return (int) ((((y / this.image.getHeight()) * 100) + y) * zoom);
+		}
+
 		public Dimension getPreferredSize() {
 			if(image != null) 
 				return new Dimension((int)(image.getWidth()*zoom), (int)(image.getHeight()*zoom));
