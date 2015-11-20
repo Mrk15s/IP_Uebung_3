@@ -243,7 +243,7 @@ public class PotraceGui extends JPanel {
 		long time = System.currentTimeMillis() - startTime;
 
 		// mark outlines somehow
-		this.paintOutlines(foundOutlines, dstPixels);
+//		this.paintOutlines(foundOutlines, dstPixels);
 		this.dstView.setOutlines(foundOutlines);
 
 		return time;

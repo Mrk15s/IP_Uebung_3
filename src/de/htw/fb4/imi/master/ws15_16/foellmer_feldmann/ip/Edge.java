@@ -86,23 +86,23 @@ public class Edge {
 		}
 	}	
 
-	private boolean vertexIsLeftOf(Vertex white, Vertex black) {		
+	public boolean vertexIsLeftOf(Vertex white, Vertex black) {		
 		return (black.getX() - 1 == white.getX()
 				&& black.getY() == white.getY()
 				);
 	}
 	
-	private boolean vertexIsBelowOf(Vertex white, Vertex black) {
+	public boolean vertexIsBelowOf(Vertex white, Vertex black) {
 		return (white.getY() - 1 == black.getY()
 				&& white.getX() == black.getX());
 	}
 	
-	private boolean vertexIsAboveOf(Vertex white, Vertex black) {
+	public boolean vertexIsAboveOf(Vertex white, Vertex black) {
 		return (black.getY() - 1 == white.getY()
 				&& black.getX() == white.getX());
 	}
 	
-	private boolean vertexIsRightOf(Vertex white, Vertex black) {
+	public boolean vertexIsRightOf(Vertex white, Vertex black) {
 		return (white.getX() - 1 == black.getX()
 				&& white.getY() == black.getY());
 	}	
