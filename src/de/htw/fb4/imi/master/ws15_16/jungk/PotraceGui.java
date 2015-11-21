@@ -124,8 +124,10 @@ public class PotraceGui extends JPanel {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED){
-					paintRaster();
+					ImageView.boolRaster = true;
+					runPotrace();
 				} else {
+					ImageView.boolRaster = false;
 					runPotrace();
 				}
 //				System.out.println(e.getStateChange() == ItemEvent.SELECTED ? "selected" : "unasdted");	
@@ -321,23 +323,7 @@ public class PotraceGui extends JPanel {
 			}
 
 		}
-	}
-	
-	private void paintRaster(){		
-		
-		int scaleWidth = srcView.getImgWidth();
-		int scaleHeight = 2;
-		
-//		Graphics2D g2 = screen.image.createGraphics();
-		
-		for (int i = 1; i < (scaleWidth); i++) {
-//			i*zoomSlider.getValue()
-			
-		}
-		
-		
-	}
-	
+	}	
 
 	public static int calculateGrayValue(int pixelValue) {
 		// greyValue = R + G + B / 3

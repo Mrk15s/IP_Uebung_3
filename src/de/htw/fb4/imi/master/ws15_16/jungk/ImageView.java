@@ -44,6 +44,8 @@ public class ImageView extends JScrollPane {
 	private boolean keepAspectRatio = true;
 	private boolean centered = true;
 	
+	public static boolean boolRaster = false;
+	
 
 	protected Set<Outline> outlines;
 
@@ -341,7 +343,10 @@ public class ImageView extends JScrollPane {
 				// draw image
 				g.drawImage(image, offsetX, offsetY, r.width, r.height, this);
 
-				this.paintRaster(g);
+				if (boolRaster) {
+					this.paintRaster(g);
+				}
+				
 				this.paintOutlines(g);
 				
 			}
