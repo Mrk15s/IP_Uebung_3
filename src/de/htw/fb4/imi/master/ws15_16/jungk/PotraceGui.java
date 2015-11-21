@@ -6,12 +6,15 @@ package de.htw.fb4.imi.master.ws15_16.jungk;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.Set;
 
@@ -68,7 +71,6 @@ public class PotraceGui extends JPanel {
 	private String message;
 	protected Mode mode;
 	private JCheckBox displayInnerCheckbox;
-
 	private JPanel imagesPanel;
 	private IOutlinePathFinder potraceAlgorithm;
 
@@ -111,6 +113,22 @@ public class PotraceGui extends JPanel {
 			}
 		});
 		
+        // load raster checkbox
+        JCheckBox rasterCheckBox = new JCheckBox("Raster");
+        rasterCheckBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED){
+					ImageView.boolRaster = true;
+					runPotrace();
+				} else {
+					ImageView.boolRaster = false;
+					runPotrace();
+				}
+//				System.out.println(e.getStateChange() == ItemEvent.SELECTED ? "selected" : "unasdted");	
+			}        	
+        });
+		
         // slider for zoom in picture
         JLabel zoomLabel = new JLabel("Zoom");
         this.zoomSlider = new JSlider(ImageView.MIN_ZOOM, 255, ImageView.MIN_ZOOM);    
@@ -146,6 +164,7 @@ public class PotraceGui extends JPanel {
 		controls.add(zoomLabel, c);
 		controls.add(zoomSlider, c);
 		controls.add(displayInnerCheckbox, c);
+		controls.add(rasterCheckBox, c);
 		
 		displayInnerCheckbox.addChangeListener(new ChangeListener() {
   			@Override
