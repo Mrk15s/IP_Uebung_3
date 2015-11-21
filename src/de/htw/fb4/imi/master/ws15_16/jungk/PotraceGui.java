@@ -239,8 +239,8 @@ public class PotraceGui extends JPanel {
 		this.potraceAlgorithm.setTurnPolicy(policy);
 		time = detectAndShowOutline(dstPixels);
 //
-		dstView.setPixels(srcPixels, width, height);
-//		dstView.setPixels(ImageUtil.get1DFrom2DArray(width, height, ((Potrace) this.potraceAlgorithm).getProcessingPixels()), width, height);
+//		dstView.setPixels(srcPixels, width, height);
+		dstView.setPixels(ImageUtil.get1DFrom2DArray(width, height, ((Potrace) this.potraceAlgorithm).getProcessingPixels()), width, height);
 		frame.pack();
 
 		dstView.saveImage("out.png");

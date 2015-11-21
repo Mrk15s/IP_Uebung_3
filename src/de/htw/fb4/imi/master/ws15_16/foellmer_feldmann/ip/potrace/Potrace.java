@@ -99,9 +99,10 @@ public class Potrace implements IOutlinePathFinder {
 				Vertex pixelVertex = new Vertex(x, y);
 
 				if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
-						&& !outlineSequences.isSurroundedByAnExistingOutline(pixelVertex)
-						) {
+						&& !outlineSequences.isSurroundedByAnExistingOutline(pixelVertex)) {
 					Outline outerOutline = this.createPath(x, y, true);
+					outerOutline.setOriginalPixels(this.originalPixels);
+					outerOutline.finishOutline();
 					outlineSequences.add(outerOutline);
 				}
 			}
@@ -151,26 +152,36 @@ public class Potrace implements IOutlinePathFinder {
 
 	private void invertPixelsInOutlines(OutlineSequenceSet outerOutlines) {
 		for (Outline outerOutline : outerOutlines) {
-			for (Edge edge : outerOutline.getEdges()) {
-				final int y = edge.getWhite().getY();
+			for (int y = outerOutline.getTopLimitY(); y <= outerOutline.getBottomLimitY(); y++) {
+				Integer[] allXValues = outerOutline.getXValues(y);
 
-				if (y != oldY) {
-					int leftLimitX = edge.getWhite().getX();
-					int rightLimitX = this.width - 1;
-
-					this.invertLineBetween(y, leftLimitX, rightLimitX, outerOutline);
-
-					this.oldY = y;
+				for (Integer x : allXValues) {
+					this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
 				}
 			}
 		}
+
+		// for (Outline outerOutline : outerOutlines) {
+		// for (Edge edge : outerOutline.getEdges()) {
+		// final int y = edge.getWhite().getY();
+		//
+		// if (y != oldY) {
+		// int leftLimitX = edge.getWhite().getX();
+		// int rightLimitX = this.width - 1;
+		//
+		// this.invertLineBetween(y, leftLimitX, rightLimitX, outerOutline);
+		//
+		// this.oldY = y;
+		// }
+		// }
+		// }
 	}
 
 	private void invertLineBetween(int y, int leftLimitX, int rightLimitX, Outline outerOutline) {
-		for (int x = leftLimitX + 1; x < rightLimitX; x++) {
-			if (!outerOutline.containsWhiteVertex(new Vertex(x, y))) {
-				this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
-			}
+		for (int x = leftLimitX; x <= rightLimitX; x++) {
+			// if (!outerOutline.containsWhiteVertex(new Vertex(x, y))) {
+			this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
+			// }
 		}
 	}
 
@@ -254,8 +265,8 @@ public class Potrace implements IOutlinePathFinder {
 	}
 
 	private boolean isNotAllowedInInnerMode(Edge potentialEdge) {
-		if (null != this.currentOuterOutline && 
-				!this.currentOuterOutline.isSurroundedByAnExistingOutline(potentialEdge.getWhite())) {
+		if (null != this.currentOuterOutline
+				&& !this.currentOuterOutline.isSurroundedByAnExistingOutline(potentialEdge.getWhite())) {
 			return true;
 		}
 
