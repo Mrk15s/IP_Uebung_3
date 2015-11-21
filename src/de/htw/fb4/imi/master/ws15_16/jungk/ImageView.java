@@ -10,7 +10,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.awt.SystemColor;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -365,19 +364,19 @@ public class ImageView extends JScrollPane {
 			// offset to set the correct black pixel corner
 			int offsetX = 0;
 			int offsetY = 0;			
-			if (edgeOnOutline.vertexIsLeftOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
+			if (edgeOnOutline.vertexIsLeftNeighbourOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
 				// case: white pixel is left of black
 				offsetX = 0;
 				offsetY = 0;			
-			} else if (edgeOnOutline.vertexIsRightOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
+			} else if (edgeOnOutline.vertexIsRightNeighbourOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
 				// case: white pixel is right of black
 				offsetX = 1;
 				offsetY = 1;
-			} else if (edgeOnOutline.vertexIsBelowOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
+			} else if (edgeOnOutline.vertexIsBelowNeighbourOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
 				// case: white pixel is below of black
 				offsetX = 0;
 				offsetY = 1;
-			} else if (edgeOnOutline.vertexIsAboveOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
+			} else if (edgeOnOutline.vertexIsAboveNeighbourOf(edgeOnOutline.getWhite(), edgeOnOutline.getBlack())) {
 				// case: white pixel is above of black
 				offsetX = 1;
 				offsetY = 0;

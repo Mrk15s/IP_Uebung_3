@@ -71,38 +71,38 @@ public class Edge {
 	 * S. Foliensatz S. 14
 	 */
 	private void calculateDirections() {
-		if (vertexIsLeftOf(white, black)) {
+		if (vertexIsLeftNeighbourOf(white, black)) {
 			this.directionX = 0;
 			this.directionY = 1;
-		} else if (vertexIsBelowOf(white, black)) {
+		} else if (vertexIsBelowNeighbourOf(white, black)) {
 			this.directionX = 1;
 			this.directionY = 0;
-		} else if (vertexIsAboveOf(white, black)) {
+		} else if (vertexIsAboveNeighbourOf(white, black)) {
 			this.directionX = -1;
 			this.directionY = 0;
-		} else if (vertexIsRightOf(white, black)) {
+		} else if (vertexIsRightNeighbourOf(white, black)) {
 			this.directionX = 0;
 			this.directionY = -1;
 		}
 	}	
 
-	public boolean vertexIsLeftOf(Vertex white, Vertex black) {		
+	public boolean vertexIsLeftNeighbourOf(Vertex white, Vertex black) {		
 		return (black.getX() - 1 == white.getX()
 				&& black.getY() == white.getY()
 				);
 	}
 	
-	public boolean vertexIsBelowOf(Vertex white, Vertex black) {
+	public boolean vertexIsBelowNeighbourOf(Vertex white, Vertex black) {
 		return (white.getY() - 1 == black.getY()
 				&& white.getX() == black.getX());
 	}
 	
-	public boolean vertexIsAboveOf(Vertex white, Vertex black) {
+	public boolean vertexIsAboveNeighbourOf(Vertex white, Vertex black) {
 		return (black.getY() - 1 == white.getY()
 				&& black.getX() == white.getX());
 	}
 	
-	public boolean vertexIsRightOf(Vertex white, Vertex black) {
+	public boolean vertexIsRightNeighbourOf(Vertex white, Vertex black) {
 		return (white.getX() - 1 == black.getX()
 				&& white.getY() == black.getY());
 	}	

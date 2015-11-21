@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -32,7 +31,7 @@ public class Outline {
 	/**
 	 * Map of y values -> x values to get all pixels WITHIN the outline
 	 */
-	protected Map<Integer, SortedSet<Integer>> outlinePixels = new HashMap<>();
+	protected Map<Integer, SortedSet<Integer>> blackOutlinePixels = new HashMap<>();
 
 	protected boolean isClosed = false;
 
@@ -73,14 +72,14 @@ public class Outline {
 	}
 
 	private void determineLimit(Vertex vertex) {
-		if (!this.outlinePixels.containsKey(vertex.getY())) {
+		if (!this.blackOutlinePixels.containsKey(vertex.getY())) {
 			// add max and min x values for the given Y to our limits map
 			SortedSet<Integer> initialLimits = new TreeSet<>();
 
-			this.outlinePixels.put(vertex.getY(), initialLimits);
+			this.blackOutlinePixels.put(vertex.getY(), initialLimits);
 		}
 
-		SortedSet<Integer> lineLimits = this.outlinePixels.get(vertex.getY());
+		SortedSet<Integer> lineLimits = this.blackOutlinePixels.get(vertex.getY());
 
 		lineLimits.add(vertex.getX());
 		if (vertex.getY() < this.minY) {
@@ -127,20 +126,44 @@ public class Outline {
 		return this.edges.contains(e);
 	}
 
-	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex) {
-		if (this.outlinePixels.containsKey(pixelVertex.getY())) {
-			return this.outlinePixels.get(pixelVertex.getY()).contains(pixelVertex.getX());
+	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex) {	
+		boolean isSurroundedTop = false;
+		boolean isSurroundedBottom = false;
+		boolean isSurroundedLeft = false;
+		boolean isSurroundedRight = false;
+		
+		for (Edge edge : this.edges) {
+			Vertex blackVertex = edge.getBlack();
+			if ( edge.getWhite().equals(pixelVertex)) {
+				return false;
+			}
+			
+			if ( blackVertex.isAboveOf(pixelVertex)) {
+				isSurroundedTop = true;
+			}
+			
+			if ( blackVertex.isLeftOf(pixelVertex)) {
+				isSurroundedLeft = true;
+			}
+			
+			if ( blackVertex.isRightOf(pixelVertex)) {
+				isSurroundedRight = true;
+			}
+			
+			if ( blackVertex.isBelowOf(pixelVertex)) {
+				isSurroundedBottom = true;
+			}
 		}
-
-		return false;
+		
+		return isSurroundedTop && isSurroundedLeft && isSurroundedRight && isSurroundedBottom;
 	}
 
 	public int getLeftLimitX(int y) {
-		return this.outlinePixels.get(y).first();
+		return this.blackOutlinePixels.get(y).first();
 	}
 
 	public int getRightLimitX(int y) {
-		return this.outlinePixels.get(y).last();
+		return this.blackOutlinePixels.get(y).last();
 	}
 
 	public int getTopLimitY() {
@@ -152,8 +175,8 @@ public class Outline {
 	}
 
 	public int getRightLimitX(int x, int y) {
-		if (this.outlinePixels.containsKey(y)) {
-			Integer[] lineLimits = this.outlinePixels.get(y).toArray(new Integer[0]);
+		if (this.blackOutlinePixels.containsKey(y)) {
+			Integer[] lineLimits = this.blackOutlinePixels.get(y).toArray(new Integer[0]);
 
 			for (int i = 0; i < lineLimits.length - 1; i++) {
 				int xValue = lineLimits[i];
@@ -169,7 +192,7 @@ public class Outline {
 	}
 
 	public Integer[] getXValues(int y) {
-		return this.outlinePixels.get(y).toArray(new Integer[0]);
+		return this.blackOutlinePixels.get(y).toArray(new Integer[0]);
 	}
 
 	public boolean containsWhiteVertex(Vertex vertex) {
@@ -191,15 +214,15 @@ public class Outline {
 
 	private void fillOutlinePixelGaps() {
 		for (int y = this.getTopLimitY(); y <= this.getBottomLimitY(); y++) {
-			Integer firstOnLine = this.outlinePixels.get(y).first();
-			Integer lastOnLine = this.outlinePixels.get(y).last();
+			Integer firstOnLine = this.blackOutlinePixels.get(y).first();
+			Integer lastOnLine = this.blackOutlinePixels.get(y).last();
 			
-			for (int x = firstOnLine; x <= lastOnLine; x++) {
-				if (ImageUtil.isForegoundPixel(this.originalPixels[x][y])
-						&& !this.outlinePixels.get(y).contains(x)) {
-					this.outlinePixels.get(y).add(x);
+			for (int x = firstOnLine; x <= lastOnLine; x++) {				
+				if (!this.blackOutlinePixels.get(y).contains(x)
+						&& this.isSurroundedByAnExistingOutline(new Vertex(x, y))) {
+					this.blackOutlinePixels.get(y).add(x);
 				}
-			}						
+			}				
 		}
 	}
 }

@@ -29,11 +29,7 @@ public class Potrace implements IOutlinePathFinder {
 	private int[][] processingPixels;
 	private int[][] processedPixels;
 
-	private int oldY = -1;
-
 	private OutlineSequenceSet outerOutlines;
-
-	private Outline currentOuterOutline;
 
 	/*
 	 * (non-Javadoc)
@@ -113,6 +109,7 @@ public class Potrace implements IOutlinePathFinder {
 		copyOriginalPixels();
 
 		this.outerOutlines = new OutlineSequenceSet(outlineSequences);
+		OutlineSequenceSet innerOutlines = new OutlineSequenceSet();
 
 		this.invertPixelsInOutlines(outerOutlines);
 
@@ -120,28 +117,21 @@ public class Potrace implements IOutlinePathFinder {
 			for (int y = outerOutline.getTopLimitY(); y <= outerOutline.getBottomLimitY(); y++) {
 				Integer[] allXValues = outerOutline.getXValues(y);
 
-				for (int startI = 0; startI < allXValues.length - 1; startI += 2) {
-					int startX = allXValues[startI];
-					int endX = allXValues[startI + 1];
+				for (int x : allXValues) {
+					int pixel = processingPixels[x][y];
+					Vertex pixelVertex = new Vertex(x, y);
 
-					for (int x = startX; x < endX; x++) {
-						int pixel = processingPixels[x][y];
-						if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
-						// &&
-						// outerOutlines.isSurroundedByAnExistingOutline(pixelVertex)
-						) {
-							this.currentOuterOutline = outerOutline;
-							try {
-								Outline innerOutline = this.createPath(x, y, false);
-								outlineSequences.add(innerOutline);
-							} catch (IllegalStateException e) {
-
-							}
-						}
+					if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
+							&& outerOutlines.isSurroundedByAnExistingOutline(pixelVertex)
+							&& !innerOutlines.isSurroundedByAnExistingOutline(pixelVertex)) {
+						Outline innerOutline = this.createPath(x, y, false);
+						innerOutlines.add(innerOutline);
 					}
 				}
 			}
 		}
+		
+		outlineSequences.addAll(innerOutlines);
 	}
 
 	protected void copyOriginalPixels() {
@@ -159,29 +149,6 @@ public class Potrace implements IOutlinePathFinder {
 					this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
 				}
 			}
-		}
-
-		// for (Outline outerOutline : outerOutlines) {
-		// for (Edge edge : outerOutline.getEdges()) {
-		// final int y = edge.getWhite().getY();
-		//
-		// if (y != oldY) {
-		// int leftLimitX = edge.getWhite().getX();
-		// int rightLimitX = this.width - 1;
-		//
-		// this.invertLineBetween(y, leftLimitX, rightLimitX, outerOutline);
-		//
-		// this.oldY = y;
-		// }
-		// }
-		// }
-	}
-
-	private void invertLineBetween(int y, int leftLimitX, int rightLimitX, Outline outerOutline) {
-		for (int x = leftLimitX; x <= rightLimitX; x++) {
-			// if (!outerOutline.containsWhiteVertex(new Vertex(x, y))) {
-			this.processingPixels[x][y] = ImageUtil.invertPixel(this.processingPixels[x][y]);
-			// }
 		}
 	}
 
@@ -224,53 +191,28 @@ public class Potrace implements IOutlinePathFinder {
 		Edge potentialEdge = this.getFirstPatternEdge(startEdge);
 
 		if (null != potentialEdge) {
-			if (this.isNotAllowedInInnerMode(potentialEdge)) {
-				return null;
-			}
-
 			return potentialEdge;
 		}
 
 		potentialEdge = this.getSecondPatternEdge(startEdge);
 
 		if (null != potentialEdge) {
-			if (this.isNotAllowedInInnerMode(potentialEdge)) {
-				return null;
-			}
-
 			return potentialEdge;
 		}
 
 		potentialEdge = this.getThirdPatternEdge(startEdge);
 
 		if (null != potentialEdge) {
-			if (this.isNotAllowedInInnerMode(potentialEdge)) {
-				return null;
-			}
-
 			return potentialEdge;
 		}
 
 		potentialEdge = this.getFourthPatternEdge(startEdge);
 
 		if (null != potentialEdge) {
-			if (this.isNotAllowedInInnerMode(potentialEdge)) {
-				return null;
-			}
-
 			return potentialEdge;
 		}
 
 		return null;
-	}
-
-	private boolean isNotAllowedInInnerMode(Edge potentialEdge) {
-		if (null != this.currentOuterOutline
-				&& !this.currentOuterOutline.isSurroundedByAnExistingOutline(potentialEdge.getWhite())) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

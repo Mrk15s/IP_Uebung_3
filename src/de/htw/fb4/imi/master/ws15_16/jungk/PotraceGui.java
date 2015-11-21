@@ -31,16 +31,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Edge;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Factory;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Outline;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.Vertex;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.ff.AbstractFloodFilling.Mode;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.IOutlinePathFinder;
 import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.IOutlinePathFinder.TurnPolicy;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.potrace.Potrace;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.Colors;
-import de.htw.fb4.imi.master.ws15_16.foellmer_feldmann.ip.util.ImageUtil;
 
 public class PotraceGui extends JPanel {
 
@@ -239,8 +234,8 @@ public class PotraceGui extends JPanel {
 		this.potraceAlgorithm.setTurnPolicy(policy);
 		time = detectAndShowOutline(dstPixels);
 //
-//		dstView.setPixels(srcPixels, width, height);
-		dstView.setPixels(ImageUtil.get1DFrom2DArray(width, height, ((Potrace) this.potraceAlgorithm).getProcessingPixels()), width, height);
+		dstView.setPixels(srcPixels, width, height);
+//		dstView.setPixels(ImageUtil.get1DFrom2DArray(width, height, ((Potrace) this.potraceAlgorithm).getProcessingPixels()), width, height);
 		frame.pack();
 
 		dstView.saveImage("out.png");
@@ -263,53 +258,6 @@ public class PotraceGui extends JPanel {
 
 		return time;
 	}
-
-	/**
-	 * TODO @Markus : Hier Kanten der Outlines zeichnen
-	 * 
-	 * @param foundOutlines
-	 * @param dstPixels
-	 */
-	private void paintOutlines(Set<Outline> foundOutlines, int[] dstPixels) {
-		for (int i = 0; i < dstPixels.length; i++) {
-			dstPixels[i] = Colors.WHITE;
-		}
-
-		for (Outline outline : foundOutlines) {
-			int color;
-
-			if (outline.isOuter()) {
-				color = Colors.BLUE;
-			} else {
-				// paint inner outline
-				color = Colors.ORANGE;
-			}
-
-			for (Edge outlineEdge : outline.getEdges()) {
-				Vertex white = outlineEdge.getWhite();
-
-				if (this.potraceAlgorithm.isWithinImageBoundaries(white)) {
-					int whitePos1D = ImageUtil.calc1DPosition(this.srcView.getImgWidth(), white.getX(), white.getY());
-					dstPixels[whitePos1D] = Colors.WHITE;
-				}
-
-				Vertex black = outlineEdge.getBlack();
-				if (this.potraceAlgorithm.isWithinImageBoundaries(black)) {
-					// zeichne Kontur-Pixel TODO nur Linie am linken Rand des
-					// Pixels zeichnen, abhängig von outlineEdge.getDirectionX()
-					// und outlineEdge.getDirectionY()
-					int blackPos1D = ImageUtil.calc1DPosition(this.srcView.getImgWidth(), black.getX(), black.getY());
-					dstPixels[blackPos1D] = color;
-				}
-			}
-
-		}
-	}
-	
-	private void paintRaster(){
-		
-	}
-	
 
 	public static int calculateGrayValue(int pixelValue) {
 		// greyValue = R + G + B / 3

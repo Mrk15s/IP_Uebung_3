@@ -38,6 +38,26 @@ public class Vertex {
 		this.y = y;
 	}
 	
+	public boolean isLeftOf(Vertex right) {		
+		return (this.getX() < right.getX()
+				&& this.getY() == right.getY());
+	}
+	
+	public boolean isRightOf(Vertex left) {		
+		return (this.getX() > left.getX()
+				&& this.getY() == left.getY());
+	}
+	
+	public boolean isAboveOf(Vertex below) {		
+		return (this.getY() < below.getY()
+				&& this.getX() == below.getX());
+	}
+	
+	public boolean isBelowOf(Vertex above) {		
+		return (this.getY() > above.getY()
+				&& this.getX() == above.getX());
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
