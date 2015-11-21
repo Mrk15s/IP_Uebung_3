@@ -38,7 +38,6 @@ public class Outline {
 	protected int type = TYPE_OUTER;
 	private int minY = Integer.MAX_VALUE;
 	private int maxY = -1;
-	private int oldY = -1;
 
 	public Outline(boolean isOuter) {
 		super();
@@ -89,8 +88,6 @@ public class Outline {
 		if (vertex.getY() > this.maxY) {
 			this.maxY = vertex.getY();
 		}
-
-		this.oldY = vertex.getY();
 	}
 
 	private void addBlackVertex(Vertex black) {
