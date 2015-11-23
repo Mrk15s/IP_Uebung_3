@@ -29,7 +29,7 @@ public class Potrace implements IOutlinePathFinder {
 	private int[][] processingPixels;
 	private int[][] processedPixels;
 
-	private OutlineSequenceSet outerOutlines;
+	private OutlineSequenceSet outlines;
 
 	/*
 	 * (non-Javadoc)
@@ -77,51 +77,42 @@ public class Potrace implements IOutlinePathFinder {
 	 */
 	@Override
 	public Set<Outline> find() {
-		OutlineSequenceSet outlineSequences = new OutlineSequenceSet();
+		this.outlines = new OutlineSequenceSet();
 
-		this.findOuterPathes(outlineSequences);
-		// TODO fix inner pathes
-		this.findInnerPathes(outlineSequences);
+		this.findOuterPathes();
+		this.findInnerPathes();
 
-		return outlineSequences;
+		return outlines;
 	}
 
-	private void findOuterPathes(OutlineSequenceSet outlineSequences) {
+	private void findOuterPathes() {
 		copyOriginalPixels();
 
-		int test = 0;
 		for (int x = 0; x < this.width; x++) {
 			for (int y = 0; y < this.height; y++) {
 				int pixel = originalPixels[x][y];
-				Vertex pixelVertex = new Vertex(x, y);
 
-				if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
-//						&& !outlineSequences.isSurroundedByAnExistingOutline(pixelVertex)
-						) {
+				if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)) {
 					Outline outerOutline = this.createPath(x, y, true);
 					
 					if (null != outerOutline) {
 						outerOutline.setOriginalPixels(this.originalPixels);
 						outerOutline.finishOutline();
-						
-						if (test != 2) {
-						outlineSequences.add(outerOutline);
-						}
-						
-						test++;
+				
+						outlines.add(outerOutline);
 					}		
 				}
 			}
 		}
 	}
 
-	private void findInnerPathes(OutlineSequenceSet outlineSequences) {
+	private void findInnerPathes() {
 		copyOriginalPixels();
 
-		this.outerOutlines = new OutlineSequenceSet(outlineSequences);
+		OutlineSequenceSet outerOutlines = new OutlineSequenceSet(outlines);
 		OutlineSequenceSet innerOutlines = new OutlineSequenceSet();
 
-		this.invertPixelsInOutlines(outerOutlines);
+		this.invertPixelsInOutlines(outlines);
 
 		for (Outline outerOutline : outerOutlines) {
 			for (int y = outerOutline.getTopLimitY(); y <= outerOutline.getBottomLimitY(); y++) {
@@ -129,11 +120,8 @@ public class Potrace implements IOutlinePathFinder {
 
 				for (int x : allXValues) {
 					int pixel = processingPixels[x][y];
-					Vertex pixelVertex = new Vertex(x, y);
 		
-					if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
-							&& outerOutlines.isSurroundedByAnExistingOutline(pixelVertex)
-							&& !innerOutlines.isSurroundedByAnExistingOutline(pixelVertex)) {
+					if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)) {
 						Outline innerOutline = this.createPath(x, y, false);
 						
 						if (null != innerOutline) {
@@ -144,7 +132,7 @@ public class Potrace implements IOutlinePathFinder {
 			}
 		}
 		
-		outlineSequences.addAll(innerOutlines);
+		outlines.addAll(innerOutlines);
 	}
 
 	protected void copyOriginalPixels() {
@@ -168,7 +156,7 @@ public class Potrace implements IOutlinePathFinder {
 	private Outline createPath(int x, int y, boolean isOuter) {
 		Outline sequence = new Outline(isOuter);
 
-		Edge e = this.getInitialEdge(x, y);
+		Edge e = this.getInitialEdge(x, y, isOuter);
 
 		if (null == e) {
 			// initial edge doesn't match pattern (left black, right white)
@@ -195,13 +183,15 @@ public class Potrace implements IOutlinePathFinder {
 		return sequence;
 	}
 
-	private Edge getInitialEdge(int x, int y) {
+	private Edge getInitialEdge(int x, int y, boolean isOuter) {
 		Vertex black = new Vertex(x, y); // current vertex (black pixel)
 		Vertex whiteLeft = new Vertex(x - 1, y); // left neighbor of current
 													// vertex (white pixel)
 		if (this.isWithinImageBoundaries(black) && this.isWithinImageBoundaries(whiteLeft)
 				&& ImageUtil.isForegoundPixel(this.processingPixels[black.getX()][black.getY()])
-				&& !ImageUtil.isForegoundPixel(this.processingPixels[whiteLeft.getX()][whiteLeft.getY()])) {
+				&& !ImageUtil.isForegoundPixel(this.processingPixels[whiteLeft.getX()][whiteLeft.getY()])
+				&& (!outlines.isSurroundedByAnExistingOutline(black, true) || !isOuter)
+				) {
 			return new Edge(whiteLeft, black);
 		}
 		

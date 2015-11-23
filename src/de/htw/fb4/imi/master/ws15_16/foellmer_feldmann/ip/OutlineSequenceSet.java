@@ -31,14 +31,7 @@ public class OutlineSequenceSet extends HashSet<Outline> {
 	}
 
 	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex) {
-		for (Outline outline : this) {
-			if (outline.isSurroundedByAnExistingOutline(pixelVertex)) {
-				this.lastSurroundingOutline = outline;
-				return true;
-			}
-		}
-		
-		return false;
+		return this.isSurroundedByAnExistingOutline(pixelVertex, false);
 	}
 	
 	public Outline getLastSurroundingOutline() {
@@ -51,5 +44,16 @@ public class OutlineSequenceSet extends HashSet<Outline> {
 	
 	public int getRightLimitX(int y) {
 		return this.lastSurroundingOutline.getRightLimitX(y);
+	}
+
+	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex, boolean checkForOnlyBlackPixelsRightTillOutline) {
+		for (Outline outline : this) {
+			if (outline.isSurroundedByAnExistingOutline(pixelVertex, checkForOnlyBlackPixelsRightTillOutline)) {
+				this.lastSurroundingOutline = outline;
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

@@ -124,6 +124,11 @@ public class Outline {
 	}
 
 	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex) {	
+		return this.isSurroundedByAnExistingOutline(pixelVertex, false);
+	}
+	
+
+	public boolean isSurroundedByAnExistingOutline(Vertex pixelVertex, boolean checkForOnlyBlackPixelsRightTillOutline) {
 		boolean isSurroundedTop = false;
 		boolean isSurroundedBottom = false;
 		boolean isSurroundedLeft = false;
@@ -143,7 +148,7 @@ public class Outline {
 				isSurroundedLeft = true;
 			}
 			
-			if ( blackVertex.isRightOf(pixelVertex)) {
+			if ( blackVertex.isRightOf(pixelVertex) && this.hasOnlyBlackPixelsInBetweenX(checkForOnlyBlackPixelsRightTillOutline, pixelVertex, blackVertex)) {
 				isSurroundedRight = true;
 			}
 			
@@ -153,6 +158,26 @@ public class Outline {
 		}
 		
 		return isSurroundedTop && isSurroundedLeft && isSurroundedRight && isSurroundedBottom;
+	}
+
+	private boolean hasOnlyBlackPixelsInBetweenX(boolean hasWhitePixelOnRightTillOutline, Vertex pixelVertex,
+			Vertex blackVertex) {
+		if (!hasWhitePixelOnRightTillOutline) {
+			return true;
+		}
+		
+		int y = pixelVertex.getY();
+		int minX = Math.min(pixelVertex.getX(), blackVertex.getX());
+		int maxX = Math.max(pixelVertex.getX(), blackVertex.getX());
+		
+		for (int x = minX; x <= maxX; x++) {
+			if (!ImageUtil.isForegoundPixel(this.originalPixels[x][y])) {
+				// white pixel
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	public int getLeftLimitX(int y) {
