@@ -89,17 +89,27 @@ public class Potrace implements IOutlinePathFinder {
 	private void findOuterPathes(OutlineSequenceSet outlineSequences) {
 		copyOriginalPixels();
 
+		int test = 0;
 		for (int x = 0; x < this.width; x++) {
 			for (int y = 0; y < this.height; y++) {
 				int pixel = originalPixels[x][y];
 				Vertex pixelVertex = new Vertex(x, y);
 
 				if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
-						&& !outlineSequences.isSurroundedByAnExistingOutline(pixelVertex)) {
+//						&& !outlineSequences.isSurroundedByAnExistingOutline(pixelVertex)
+						) {
 					Outline outerOutline = this.createPath(x, y, true);
-					outerOutline.setOriginalPixels(this.originalPixels);
-					outerOutline.finishOutline();
-					outlineSequences.add(outerOutline);
+					
+					if (null != outerOutline) {
+						outerOutline.setOriginalPixels(this.originalPixels);
+						outerOutline.finishOutline();
+						
+						if (test != 2) {
+						outlineSequences.add(outerOutline);
+						}
+						
+						test++;
+					}		
 				}
 			}
 		}
@@ -120,12 +130,15 @@ public class Potrace implements IOutlinePathFinder {
 				for (int x : allXValues) {
 					int pixel = processingPixels[x][y];
 					Vertex pixelVertex = new Vertex(x, y);
-
+		
 					if (PROCESSED != this.processedPixels[x][y] && ImageUtil.isForegoundPixel(pixel)
 							&& outerOutlines.isSurroundedByAnExistingOutline(pixelVertex)
 							&& !innerOutlines.isSurroundedByAnExistingOutline(pixelVertex)) {
 						Outline innerOutline = this.createPath(x, y, false);
-						innerOutlines.add(innerOutline);
+						
+						if (null != innerOutline) {
+							innerOutlines.add(innerOutline);
+						}
 					}
 				}
 			}
@@ -157,6 +170,11 @@ public class Potrace implements IOutlinePathFinder {
 
 		Edge e = this.getInitialEdge(x, y);
 
+		if (null == e) {
+			// initial edge doesn't match pattern (left black, right white)
+			return null;
+		}
+		
 		sequence.addEdge(e);
 
 		while (null != e) {
@@ -181,10 +199,13 @@ public class Potrace implements IOutlinePathFinder {
 		Vertex black = new Vertex(x, y); // current vertex (black pixel)
 		Vertex whiteLeft = new Vertex(x - 1, y); // left neighbor of current
 													// vertex (white pixel)
-
-		Edge newEdge = new Edge(whiteLeft, black);
-
-		return newEdge;
+		if (this.isWithinImageBoundaries(black) && this.isWithinImageBoundaries(whiteLeft)
+				&& ImageUtil.isForegoundPixel(this.processingPixels[black.getX()][black.getY()])
+				&& !ImageUtil.isForegoundPixel(this.processingPixels[whiteLeft.getX()][whiteLeft.getY()])) {
+			return new Edge(whiteLeft, black);
+		}
+		
+		return null;
 	}
 
 	private Edge findNextEdgeOnOutline(Edge startEdge, Outline sequence) {

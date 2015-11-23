@@ -48,7 +48,7 @@ public class PotraceGui extends JPanel {
 	private static final File openPath = new File(".");
 	private static String title = "Potrace ";
 	private static final String author = "Markus Föllmer & Sascha Feldmann";
-	private static final String initalOpen = "klein.png";
+	private static final String initalOpen = "test3.png";
 	private static final int TEXTAREA_COLS = 30;
 	private static final int TEXTAREA_ROWS = 5;
 	
